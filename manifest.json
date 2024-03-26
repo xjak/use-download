@@ -1,0 +1,54 @@
+{
+  "name": "download",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "description": "这是一段描述。。。",
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/play*",
+        "https://www.baidu.com/*"
+      ],
+      "run_at": "document_end",
+      "js": [
+        "script/index.js"
+      ],
+      "css": [
+        "css/index.css"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "icons/index.png",
+    "48": "icons/index.png",
+    "64": "icons/index.png",
+    "128": "icons/index.png"
+  },
+  "action": {
+    "default_popup": "popup/index.html"
+  },
+  "browser_action": {
+    "default_title": "图片保存",
+    "default_icon": "icons/zhihu.png",
+    "default_popup": "popup/index.html"
+  },
+  "background": {},
+  "permissions": [
+    "tabs",
+    "storage",
+    "https://www.baidu.com/*",
+    "activeTab"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/*.jpeg",
+        "images/*.jpg",
+        "images/*.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
