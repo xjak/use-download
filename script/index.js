@@ -9,11 +9,17 @@ const $ = (name) => {
   return el;
 };
 
-function saveImage(el, name) {
-  const image = document.querySelector(el)
-  const filename = document.querySelector(name).innerText
+const $s = (name) => {
+  const el = document.querySelectorAll(name);
+  if (!el) {
+    throw Error("$ " + name + " is not");
+  }
+  return el;
+};
 
-  const download = (width, height) => {
+const saveImage = (src, filename) => {
+
+  const download = (image, width, height) => {
     var canvas = document.createElement('canvas')
     canvas.width = width
     canvas.height = height
@@ -29,25 +35,38 @@ function saveImage(el, name) {
     document.body.removeChild(a)
   }
 
-  const img = document.createElement('img')
+  const img = new Image()
+  img.setAttribute('crossOrigin', 'anonymous')
   img.onload = function() {
-    download(img.width, img.height)
+    download(img, img.width, img.height)
   }
-  img.src = image.src
+  img.src = src
 }
 
-window.onload = () => {
-  // 删除遮罩层
-  $('.soutu-btn').$remove()
+const h = (name, style, ob) => {
+  const el = document.createElement(name)
+  for (let i in ob) {
+    el[i] = ob[i]
+  }
+  for (let i in style) {
+    el.style[i] = style[i]
+  }
+  return el
+}
 
+// 主图下载
+const bigImgBtn = () => {
 
-  const b = document.createElement('button')
-  b.innerText = '保存图片'
-  b.style.position = 'fixed'
-  b.style.right = '30px'
-  b.style.bottom = '100px'
-  b.style.zIndex = 9999
-  b.addEventListener('click', function() {
+  const btn = h('button', {
+    right: '30px',
+    bottom: '100px',
+    position: 'fixed',
+    zIndex: 9999
+  }, {
+    innerText: '下载'
+  })
+
+  btn.addEventListener('click', function() {
     const use_name = localStorage.getItem('use_name')
     const use_src = localStorage.getItem('use_src')
     console.log(use_name, use_src)
@@ -55,12 +74,69 @@ window.onload = () => {
     if (!use_name || !use_src) return
     saveImage(use_src, use_name)
   })
-  $("body").appendChild(b)
+  $("body").appendChild(btn)
+}
+
+// 侧边
+const rightBtn = () => {
+  const els = $s(config.rightImgSrc)
+
+  for (let i = 0; i < els.length; i++) {
+
+    const img = els[i].querySelector('img')
+
+    if (img) {
+      const btn = h('button', {
+        left: '0px',
+        bottom: '0px',
+        position: 'absolute',
+        zIndex: 9999
+      }, {
+        innerText: '下载'
+      })
+
+      const use_name = els[i].querySelector('.c-color-gray').innerText
+      btn.addEventListener('click', () => {
+        saveImage(img.src, use_name)
+      })
+
+      els[i].style.position = 'relative'
+      els[i].appendChild(btn)
+
+      const targetImg = h('img', {
+        position: 'fixed',
+        zIndex: 9999,
+        left: 0,
+        top: 0,
+        width: '400px'
+      }, {
+        src: img.src
+      })
+      
+      img.parentElement.addEventListener('mouseenter', (e) => {
+        document.body.appendChild(targetImg)
+      })
+
+      img.parentElement.addEventListener('mouseleave', (e) => {
+        document.body.removeChild(targetImg)
+      })
+    }
+
+  }
+}
+
+window.onload = () => {
+  // 删除遮罩层
+  $('.soutu-btn').$remove()
+
+  // 详情
+  bigImgBtn()
+
+  // 侧边
+  rightBtn()
 
 
   chrome.runtime.onMessage.addListener(function(request, secder, sendResponse) {
-    console.log(99, request, secder, sendResponse)
-
     if (request.name && request.src) {
       localStorage.setItem('use_name', request.name)
       localStorage.setItem('use_src', request.src)
@@ -70,3 +146,5 @@ window.onload = () => {
 }
 
 console.log("script body=>", chrome, localStorage);
+
+console.log("config =>", config);

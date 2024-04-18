@@ -11,6 +11,7 @@
       ],
       "run_at": "document_end",
       "js": [
+        "script/config.js",
         "script/index.js"
       ],
       "css": [
